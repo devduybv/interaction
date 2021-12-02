@@ -19,16 +19,24 @@ class InteractionController extends BaseController
     public function createOrUpdate(Request $request)
     {
         $this->validator->isValid($request, 'RULE_CREATE');
-        $interaction = $this->repository->createOrUpdate($request->all());
+        $interaction = $this->repository->updateOrCreate(
+            [
+                'resource_type' => $request['resource_type'],
+                'resource_id' => $request['resource_id'],
+                'user_id' => $request['user_id'],
+            ],
+            [
+                'status' => $request['status'],
+            ]
+        );
         $item = $interaction->resource($interaction->resource_type)->first();
         return view('interaction.show', compact('item'));
     }
     public function destroy(Request $request)
     {
-
-        $interaction = $this->repository->delete($request->id);
-
+        $interaction = $this->repository->find($request->id);
         $item = $interaction->resource($interaction->resource_type)->first();
+        $this->repository->delete($request->id);
         return view('interaction.show', compact('item'));
 
     }
